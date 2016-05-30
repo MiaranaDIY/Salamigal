@@ -57,10 +57,10 @@ class SalamigalNetworking(multiprocessing.Process):
                     'location': {'label': 'Location', 'value': relay_1.location},
                     'group': {'label': 'Group/Type', 'value':relay_1.group},
                     'watt': {'label': 'Load (Watt)', 'value': relay_1.load_watt},
-                    'ontime': {'label': 'ON time (Hours)', 'value': round(relay_1.get_ontime(),4)},
+                    'ontime': {'label': 'ON time (Hours)', 'value': round(relay_1.get_ontime(),2)},
                     'state': {'label': 'Load State', 'value': relay_1.state},
                     'stream': {'label': 'Streaming', 'value': relay_1.streaming},
-                    'usage': {'label': 'Usage (Wh)', 'value': round(relay_1.get_usage(),4)}
+                    'usage': {'label': 'Usage (Wh)', 'value': round(relay_1.get_usage(),2)}
                 },
                 {
                     'uid': {'label': 'UID', 'value': relay_2.uid},
@@ -68,10 +68,10 @@ class SalamigalNetworking(multiprocessing.Process):
                     'location': {'label': 'Location', 'value': relay_2.location},
                     'group': {'label': 'Group/Type', 'value':relay_2.group},
                     'watt': {'label': 'Load (Watt)', 'value': relay_2.load_watt},
-                    'ontime': {'label': 'ON time (Hours)', 'value':  round(relay_1.get_ontime(),4)},
+                    'ontime': {'label': 'ON time (Hours)', 'value':  round(relay_1.get_ontime(),2)},
                     'state': {'label': 'Load State', 'value': relay_2.state},
                     'stream': {'label': 'Streaming', 'value': relay_2.streaming},
-                    'usage': {'label': 'Usage (Wh)', 'value': round(relay_2.get_usage(),4)}
+                    'usage': {'label': 'Usage (Wh)', 'value': round(relay_2.get_usage(),2)}
                 },
                 {
                     'uid': {'label': 'UID', 'value': ds18b20_1.uid},
