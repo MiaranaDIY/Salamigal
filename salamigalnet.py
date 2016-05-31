@@ -13,27 +13,36 @@ import subprocess as sp
 import json
 from devices.relay import Relay
 from devices.ds18b20 import DS18B20
+from devices.hcsr04 import HCSR04
 
 #Manually create relay 1
 relay_1 = Relay(17)
-relay_1.set_name("Lampu Utama")
-relay_1.set_location("Kamar Tamu")
-relay_1.set_group("Relay")
-relay_1.set_watt(45)
+relay_1.name = 'Lampu Utama'
+relay_1.location = 'Kamar Tamu'
+relay_1.group = 'Relay'
+relay_1.load_watt = 45
 
 #Manually create relay 2
 relay_2 = Relay(18)
-relay_2.set_name("AC Samsung 1PK")
-relay_2.set_location("Kamar")
-relay_2.set_group("Relay")
-relay_2.set_watt(500)
+relay_2.name = 'AC Samsung 1PK'
+relay_2.location = 'Kamar'
+relay_2.group = 'Relay'
+relay_2.load_watt = 500
 
 #Manually create ds18b20 1
 ds18b20_1 = DS18B20('000005504c8b')
-ds18b20_1.set_name("Sensor Suhu Kamar")
-ds18b20_1.set_location("Kamar")
-ds18b20_1.set_group("DS18B20")
-ds18b20_1.set_watt(0.1)
+ds18b20_1.name = 'Sensor Suhu Kamar'
+ds18b20_1.location = 'Kamar'
+ds18b20_1.group = 'DS18B20'
+ds18b20_1.load_watt = 0.1
+
+#Manually create hc-sr04 1
+hcsr04_1 = HCSR04(23,24) #trigger, echo. don't inverse!
+hcsr04_1.name = 'Sensor Tanki Air'
+hcsr04_1.location = 'Tower Air'
+hcsr04_1.group = 'HCSR04'
+hcsr04_1.load_watt = 0.001
+hcsr04_1.tank_height = 250 #in CM
 
 
 class SalamigalNetworking(multiprocessing.Process):
@@ -44,6 +53,7 @@ class SalamigalNetworking(multiprocessing.Process):
         self.resultQ = resultQ
         self.taskQ = taskQ
         self.stream_thread = []
+        self.streaming = 0
     
     #Manually create device list to be send to client
     def send_dev_list(self, mid, sid, uid="*"):
@@ -80,11 +90,23 @@ class SalamigalNetworking(multiprocessing.Process):
                     'group': {'label': 'Group/Type', 'value':ds18b20_1.group},
                     'stream': {'label': 'Streaming', 'value': ds18b20_1.streaming},
                     'temp': {'label': 'Temperature (C)', 'value': ds18b20_1.get_temp()}
+                },
+                {
+                    'uid': {'label': 'UID', 'value': hcsr04_1.uid},
+                    'name': {'label': 'Device Name', 'value':  hcsr04_1.name},
+                    'location': {'label': 'Location', 'value': hcsr04_1.location},
+                    'group': {'label': 'Group/Type', 'value':hcsr04_1.group},
+                    'stream': {'label': 'Streaming', 'value': hcsr04_1.streaming},
+                    'range': {'label': 'Range (CM)', 'value': round(hcsr04_1.get_range(),2)},
+                    'level': {'label': 'Level (%)', 'value': round(hcsr04_1.get_level(),2)}
                 }
             ]
             if(uid == "*"):
                 dev = {
-                    'dev': dev
+                    'dev': dev,
+                    'global': {
+                        'streaming': self.streaming
+                    }
                 }
                 self.send_message(dev,mid,to=sid)
                 return dev
@@ -92,7 +114,10 @@ class SalamigalNetworking(multiprocessing.Process):
                 for d in dev:
                     if(d['uid']['value'] == uid):
                         dev = {
-                            'dev': [d]
+                            'dev': [d],
+                            'global': {
+                                'streaming': self.streaming
+                            }
                         }
                         self.send_message(dev,mid,to=sid)
                         return dev
@@ -118,6 +143,10 @@ class SalamigalNetworking(multiprocessing.Process):
                 {
                     'uid': ds18b20_1.uid,
                     'obj': ds18b20_1
+                },
+                {
+                    'uid': hcsr04_1.uid,
+                    'obj': hcsr04_1
                 }
             ]
             if(uid == "*"):
@@ -133,55 +162,87 @@ class SalamigalNetworking(multiprocessing.Process):
 
     #Function for changing device property
     def set_dev(self, uid, param, val, sid, mid):
-        dev = self.get_dev_list(uid)
-        #Special relay
-        if(dev.group == 'Relay'):
-            if(param == 'state'):
-                dev.turn(val)
-                #Update device change to client
-                self.send_dev_list(mid, sid, uid)
-            elif(param == 'stream'):
-                if(val == 1):
-                    self.stream_start(uid, mid, sid)
-                else:
-                    self.stream_stop(uid, mid, sid)
-        #Special DS18B20
-        if(dev.group == 'DS18B20'):
-            if(param == 'stream'):
-                if(val == 1):
-                    self.stream_start(uid, mid, sid)
-                else:
-                    self.stream_stop(uid, mid, sid)
+        try:
+            if(uid != '*'):
+                dev = self.get_dev_list(uid)
+                #Special relay
+                if(dev.group == 'Relay'):
+                    if(param == 'state'):
+                        dev.turn(val)
+                        #Update device change to client
+                        self.send_dev_list(mid, sid, uid)
+                    elif(param == 'stream'):
+                        if(val == 1):
+                            self.stream_start(uid, mid, sid)
+                        else:
+                            self.stream_stop(uid, mid, sid)
+                #Special DS18B20
+                elif(dev.group == 'DS18B20'):
+                    if(param == 'stream'):
+                        if(val == 1):
+                            self.stream_start(uid, mid, sid)
+                        else:
+                            self.stream_stop(uid, mid, sid)
+                
+                #Special  HCSR04
+                elif(dev.group == 'HCSR04'):
+                    if(param == 'stream'):
+                        if(val == 1):
+                            self.stream_start(uid, mid, sid)
+                        else:
+                            self.stream_stop(uid, mid, sid)       
+                        
+            #Stream All Dev
+            elif(uid == '*' and param == 'stream'):
+                self.stream_start('*', mid, sid)
+        
+        except Exception:
+            pass
     
     #Function to initialize and start device stream threading
     def stream_start(self, uid, mid, sid='*'):
-        dev = self.get_dev_list(uid)
-        if(dev.streaming):
-            dev.set_streaming(0)
-            self.send_dev_list(mid, sid, uid)
-            return None
-        dev.set_streaming(1)
+        if(uid == '*'):
+            if(self.streaming):
+                self.streaming = 0
+                return None
+            self.streaming = 1
+        else:
+            dev = self.get_dev_list(uid)
+            if(dev.streaming):
+                dev.streaming = 0
+                self.send_dev_list(mid, sid, uid)
+                return None
+            dev.streaming = 1
         t_stream_dev = threading.Thread(name='Device Streamer', target=self.dev_streamer, args=[uid, mid, sid])
         t_stream_dev.daemon = True
         t_stream_dev.start()
         
     def stream_stop(self, uid, mid, sid='*'):
-        dev = self.get_dev_list(uid)
-        dev.set_streaming(0)
-        self.send_dev_list(mid, sid, uid)
+        if(uid == '*'):
+            self.streaming = 0                
+        else:
+            dev = self.get_dev_list(uid)
+            dev.streaming = 0
+            self.send_dev_list(mid, sid, uid)
     
     #Function to stream all or specific device data & property
     def dev_streamer(self, uid, mid, sid):
-        dev = self.get_dev_list(uid)
-        logging.info('Streaming device {} to {} started'.format(dev.name, mid))
+        if(uid == '*'):
+            logging.info('Streaming All Devices to {} started'.format(mid))
 
-        while dev.streaming == 1:
+            while self.streaming == 1:
+                self.send_dev_list(mid, sid, '*')
+                time.sleep(1)
+            logging.info('Streaming All Devices to {} stopped'.format(mid))
+        else:
             dev = self.get_dev_list(uid)
-            self.send_dev_list(mid, sid, uid)
-            
+            logging.info('Streaming device {} to {} started'.format(dev.name, mid))
 
-            time.sleep(1)
-        logging.info('Streaming device {} to {} stopped'.format(dev.name, mid))
+            while dev.streaming == 1:
+                dev = self.get_dev_list(uid)
+                self.send_dev_list(mid, sid, uid)
+                time.sleep(1)
+            logging.info('Streaming device {} to {} stopped'.format(dev.name, mid))
     
     #Send message to client   
     def send_message(self, data, mid, to='*', stat='complete', is_binary=False):

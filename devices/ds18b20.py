@@ -31,9 +31,4 @@ class DS18B20(device.Device):
     def get_temp(self):
         dev = TS(TS.THERM_SENSOR_DS18B20, self.uid)
         return dev.get_temperature()
-    
-    #Set device unique iD
-    def set_uid(self, uid = 'R'+str(instant_count)):
-        self.uid = uid
-        return uid
         

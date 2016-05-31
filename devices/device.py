@@ -7,32 +7,13 @@ class Device:
         #Increment instant counter
         Device.instant_count += 1
         #load watt for power usage calculation and device property
-        self.ontime = 0
         self.load_watt = 0
         self.name = 'Device'
         self.location = 'Location'
         self.group = 'Group'
         self.streaming = 0
-        
-    #Set device streaming state
-    def set_streaming(self, s = 1):
-        self.streaming = s
-        return self.streaming
-    
-    #Set device name
-    def set_name(self, nm = '-'):
-        self.name = nm
-        return nm
-    
-    #Set device location
-    def set_location(self, lc = '-'):
-        self.location = lc
-        return lc
-        
-    #Set device group
-    def set_group(self, gr = '-'):
-        self.group = gr
-        return gr
+        self.state = 1
+        self.started_time = time.time()
         
     #Set device load watt
     def set_watt(self, lw = 0):
@@ -45,11 +26,15 @@ class Device:
     
     #Get device ON time to calculate power usage (Hours)
     def get_ontime(self):
-        if(self.state and int(self.ontime) > 0):
-            return (int(time.time()) - int(self.ontime)) / 60 / 60
+        if(self.state):
+            return (int(time.time()) - int(self.started_time)) / 60 / 60
         else:
             return 0
         
     #Calculate power usage in Wh
     def get_usage(self):
-        return self.get_ontime() * self.load_watt
+        try:
+            return self.get_ontime() * int(self.load_watt)
+        except Exception as err:
+            return None
+        pass  

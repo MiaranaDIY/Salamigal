@@ -21,19 +21,21 @@ class Relay(device.Device):
         #Setup relay pin to output mode
         GPIO.setup(self.pin, GPIO.OUT)
         self.state = GPIO.input(self.pin)
+        try:
+            if(self.state == 1):
+                self.started_time = int(time.time())
+            else:
+                self.started_time = 0
+        except Exception as err:
+            self.started_time = 0
+            pass
         #load watt for power usage calculation and relay property
         self.uid = 'R'+str(Relay.instant_count)
-        self.ontime = 0
         self.load_watt = 0
         self.name = 'Relay'
         self.location = 'Location'
         self.group = 'Group'
         self.streaming = 0
-    
-    #Set device unique iD
-    def set_uid(self, uid = 'R'+str(instant_count)):
-        self.uid = uid
-        return uid
           
     
     #Turn relay on or off
@@ -45,9 +47,9 @@ class Relay(device.Device):
                 self.state = GPIO.input(self.pin)
                 #set ontime for statistic
                 if(s == 1):
-                    self.ontime = time.time()
+                    self.started_time = time.time()
                 else:
-                    self.ontime = 0
+                    self.started_time = 0
                 return s
             return None
         except Exception as err:

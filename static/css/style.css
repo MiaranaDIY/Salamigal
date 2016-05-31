@@ -54,4 +54,7 @@ section{
     overflow-x: hidden;
     overflow-y: hidden;
 }
+.viewer-card-container {
+    margin-top: 15px;
+}
 /** End Viewer Card **/
