@@ -29,7 +29,6 @@ Salamigal.Selector = React.createClass({
         var socket = this.props.socketService;
 
         socket.sendRequest({task: 'command', cmd: 'req_dev', arg: '*'}, function (message) {
-            console.log(message);
             this.setState({data: message.data.dev});
             var options = [];
             options.push({label: '--- All Devices ---', value: '*'});
@@ -369,7 +368,6 @@ Salamigal.Ds18b20 = React.createClass({
             value: !this.props.deviceProperty[e].value ? 1 : 0, 
             uid: this.props.deviceProperty.uid.value
          };
-         console.log(clickData);
         this.props.onParamChange(clickData);
     }
   },
@@ -406,7 +404,6 @@ Salamigal.Hcsr04 = React.createClass({
             value: !this.props.deviceProperty[e].value ? 1 : 0, 
             uid: this.props.deviceProperty.uid.value
          };
-         console.log(clickData);
         this.props.onParamChange(clickData);
     }
   },

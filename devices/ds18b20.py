@@ -29,6 +29,9 @@ class DS18B20(device.Device):
     
     #Get temperature
     def get_temp(self):
-        dev = TS(TS.THERM_SENSOR_DS18B20, self.uid)
-        return dev.get_temperature()
+        try:
+            dev = TS(TS.THERM_SENSOR_DS18B20, self.uid)
+            return dev.get_temperature()
+        except Exception:
+            logging.error('Device {} error or not found'.format(self.uid))
         

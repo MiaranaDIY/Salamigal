@@ -11,7 +11,7 @@ function SocketService() {
 	var connected = false;
     
     ws.onerror = function (error) {
-        console.log(error);
+        //console.log(error);
         $('#conn-indicator').css('color','yellow');
         if (confirm('Server disconnected. Reload page?')) {
             window.location.reload(true); 
@@ -67,12 +67,12 @@ function SocketService() {
         pendingCallbacks[request.$id] = cb;
 
 		if (!connected) {
-			console.log('Not connected yet, saving request', request);
+			//console.log('Not connected yet, saving request', request);
 			preConnectionRequests.push(request);
 			return;
 		}
 
-		console.log('Sending request', request);
+		//console.log('Sending request', request);
 		ws.send(JSON.stringify(request));
 	}
 
@@ -84,7 +84,7 @@ function SocketService() {
 	}
 
 	function requestComplete(id) {
-		console.log("requestComplete:", id);
+		//console.log("requestComplete:", id);
 		delete pendingCallbacks[id];
 	}
 

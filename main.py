@@ -220,9 +220,10 @@ def main():
             pass
             
     mainLoop = tornado.ioloop.IOLoop.instance()
+    netLoop = tornado.ioloop.IOLoop.instance()
     
     scheduler_networkingProc = tornado.ioloop.PeriodicCallback(
-        CR_networkingProc, 5, io_loop = mainLoop)
+        CR_networkingProc, 5, io_loop = netLoop)
     scheduler_networkingProc.start()
     
     scheduler_routineProc = tornado.ioloop.PeriodicCallback(
@@ -230,6 +231,7 @@ def main():
     scheduler_routineProc.start()
 
     logging.info("*** Ready, server started!")   
+    netLoop.start()
     mainLoop.start()
 
 if __name__ == "__main__":

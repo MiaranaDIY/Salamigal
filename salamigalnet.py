@@ -278,7 +278,7 @@ class SalamigalNetworking(multiprocessing.Process):
                         self.set_dev(arg['uid'], arg['param'], arg['val'], sid, mid)
                     
                     
-                time.sleep(0.05)
+                time.sleep(0.5)
             except Exception as err:
                 logging.error("%s", traceback.format_exc())
                 return None
