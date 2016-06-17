@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-25 17:27+0800\n"
+"POT-Creation-Date: 2016-06-09 19:11+0800\n"
 "PO-Revision-Date: 2016-05-24 15:43+0800\n"
 "Last-Translator:  <hello@tutorkeren.com>\n"
 "Language-Team: Indonesian\n"
@@ -16,33 +16,24 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: main.py:76
-msgid "{} opening websocket"
-msgstr "{} membuka websocket"
-
-#: main.py:93
-msgid "{} websocket connected!"
-msgstr ""
-
-#: main.py:125
-msgid "Client {} closed websocket"
-msgstr "Klien {} menutup websocket"
-
-#: template/index.html:53
+#: template/index.html:54
 msgid "Configure"
 msgstr "Pengaturan"
 
-#: template/index.html:69
-msgid "Device monitoring"
-msgstr "Monitoring perangkat"
-
 #: template/index.html:70
+#, fuzzy
+msgid "Device control & monitoring"
+msgstr "Monitoring & kontrol perangkat"
+
+#: template/index.html:71
 msgid "Please select one device from the list"
 msgstr "Silahkan pilih salah satu perangkat dari daftar berikut"
 
-#: template/index.html:88
-msgid "Control & Monitor"
-msgstr ""
-
 #~ msgid "Welcome"
 #~ msgstr "Selamat datang"
+
+#~ msgid "Client {} closed websocket"
+#~ msgstr "Klien {} menutup websocket"
+
+#~ msgid "{} opening websocket"
+#~ msgstr "{} membuka websocket"

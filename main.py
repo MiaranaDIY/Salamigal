@@ -62,7 +62,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
     def open(self):
         try:
             #self.set_nodelay(True)
-            self.sid = str(uuid.uuid4())
+            self.sid = 'C'+str(time.time())
             self.name = 'Guest-{}'.format(len(guests))
             self.status = 'unauth'
             guests[self.sid] =    {
@@ -220,10 +220,10 @@ def main():
             pass
             
     mainLoop = tornado.ioloop.IOLoop.instance()
-    netLoop = tornado.ioloop.IOLoop.instance()
+    #netLoop = tornado.ioloop.IOLoop.instance()
     
     scheduler_networkingProc = tornado.ioloop.PeriodicCallback(
-        CR_networkingProc, 5, io_loop = netLoop)
+        CR_networkingProc, 10, io_loop = mainLoop)
     scheduler_networkingProc.start()
     
     scheduler_routineProc = tornado.ioloop.PeriodicCallback(
@@ -231,7 +231,7 @@ def main():
     scheduler_routineProc.start()
 
     logging.info("*** Ready, server started!")   
-    netLoop.start()
+    #netLoop.start()
     mainLoop.start()
 
 if __name__ == "__main__":

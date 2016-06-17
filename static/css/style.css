@@ -27,9 +27,44 @@
     color: #FFF;
 }
 
+.h-space {
+    margin: 10px 0px;
+}
+
 section{
     min-height:600px;
 }
+#main-section {
+    margin-bottom: 60px;
+}
+/**.InputRange-track {
+    background: #eee;
+    border-radius: .3rem;
+    display: block;
+    height: 1rem;
+    position: relative;
+    transition: left .3s ease-out,width .3s ease-out;
+}
+.InputRange-slider {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background: #3f51b5;
+    border: 1px solid #3f51b5;
+    border-radius: 100%;
+    cursor: pointer;
+    display: block;
+    height: 1.3rem;
+    margin-left: -.5rem;
+    margin-top: -1.1rem;
+    outline: 0;
+    position: absolute;
+    top: 50%;
+    transition: -webkit-transform .3s ease-out,box-shadow .3s ease-out;
+    transition: transform .3s ease-out,box-shadow .3s ease-out;
+    width: 1.3rem;
+}**/
+
 /** Start Viewer Card **/
 .card-row {
     text-align: left;

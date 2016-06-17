@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-25 17:27+0800\n"
+"POT-Creation-Date: 2016-06-09 19:11+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,30 +17,14 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: main.py:76
-msgid "{} opening websocket"
-msgstr ""
-
-#: main.py:93
-msgid "{} websocket connected!"
-msgstr ""
-
-#: main.py:125
-msgid "Client {} closed websocket"
-msgstr ""
-
-#: template/index.html:53
+#: template/index.html:54
 msgid "Configure"
 msgstr ""
 
-#: template/index.html:69
-msgid "Device monitoring"
-msgstr ""
-
 #: template/index.html:70
-msgid "Please select one device from the list"
+msgid "Device control & monitoring"
 msgstr ""
 
-#: template/index.html:88
-msgid "Control & Monitor"
+#: template/index.html:71
+msgid "Please select one device from the list"
 msgstr ""

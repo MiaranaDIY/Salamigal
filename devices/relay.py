@@ -34,7 +34,7 @@ class Relay(device.Device):
         self.load_watt = 0
         self.name = 'Relay'
         self.location = 'Location'
-        self.group = 'Group'
+        self.group = 'Relay'
         self.streaming = 0
           
     

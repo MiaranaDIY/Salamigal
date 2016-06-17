@@ -29,7 +29,7 @@ function SocketService() {
         };
         r = JSON.stringify(r);
         ws.send(r);
-		connected = true;
+        connected = true;
 	};
     
     //On close

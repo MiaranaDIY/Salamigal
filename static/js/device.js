@@ -23,7 +23,7 @@ Salamigal.Selector = React.createClass({
   getInitialState: function () {
     return { value: '',data: [],selectedDevice: [{group: {label: '-', value: '-'}}], global: {streaming:0} };
   },
-    requestDeviceList: function () {
+  requestDeviceList: function () {
         var FID = 'requestDeviceList';
         this.setState({data: []});
         var socket = this.props.socketService;
@@ -77,7 +77,7 @@ Salamigal.Selector = React.createClass({
     var Card = Salamigal.Viewer.Card;
     return(
       <div>
-      <Select name='device-selector' options={this.state.options} onChange={this.updateValue} value={this.state.value}>
+      <Select name='device-selector' options={this.state.options} onChange={this.updateValue} onClick={this.requestDeviceList} value={this.state.value}>
       </Select>
       {/**<Dv.Table dev={this.state.selectedDevice} onStateChange={this.handleOnStateChange} onRefreshSelected={this.handleOnRefreshSelected}/>**/}
       <Card dev={this.state.selectedDevice} global={this.state.global} onParamChange={this.handleOnParamChange} onRefreshSelected={this.handleOnRefreshSelected} />
@@ -113,7 +113,7 @@ Salamigal.Viewer.Button = React.createClass({
             this.props.onClick(e);
         }
     },
-    formatterClassName(type, state){
+    formatterClassName: function(type, state){
         switch(type){
             case "refresh":
                 return "btn btn-default btn-refresh";
@@ -138,7 +138,7 @@ Salamigal.Viewer.Button = React.createClass({
                 return "btn btn-default" + type;
         }
     },
-    formatterText(type, state){
+    formatterText: function(type, state){
                 switch(type){
             case "refresh":
                 return "Refresh";
@@ -170,6 +170,107 @@ Salamigal.Viewer.Button = React.createClass({
     }
 });
 
+Salamigal.Viewer.CommandButton = React.createClass({
+    displayName: 'Salamigal.Viewer.CommandButton',
+    propTypes: {
+        onClick: React.PropTypes.func,
+        text: React.PropTypes.string,
+        param: React.PropTypes.string,
+        value:React.PropTypes.string,
+        style: React.PropTypes.string
+    },
+    handleOnClick: function(e){
+        if (typeof this.props.onClick === 'function') {
+            this.props.onClick({param: this.props.param, value: this.props.value});
+        }
+    },
+    render: function(){
+        return(
+            <button onClick={this.handleOnClick} className={this.props.style}>{this.props.text}</button>
+        );
+    }
+});
+
+Salamigal.Viewer.Slider = React.createClass({
+    displayName: 'Salamigal.Viewer.Slider',
+ propTypes: {
+    onChange: React.PropTypes.func,
+    value: React.PropTypes.number,
+    name: React.PropTypes.string,
+    param: React.PropTypes.string
+  },  
+  getInitialState: function(){
+    return { value: 0, range:  {min: 0, max: 100}, name: 'slider'};
+  },
+  componentWillMount: function (){
+    this.setState({value: this.props.value, name: this.props.name});
+  },
+  onChange: function(event) {
+    this.setState({
+      value: event.target.value,
+    });
+  },
+  onTouchEnd: function(event) {
+    this.setState({
+      value: event.target.value,
+    });
+    this.props.onChange({param: this.props.param, value: event.target.value}); 
+  },  
+  render: function() {
+    return (
+            <div class="form-group">
+            <label for="{this.props.name}">{this.props.label} ({this.state.value})</label>
+            <input 
+                name={this.state.name} 
+                type="range" 
+                min={this.state.range.min} 
+                max={this.state.range.max} 
+                step="1" 
+                value={this.state.value}  
+                onChange={this.onChange}
+                onTouchEnd={this.onTouchEnd}
+                onClick={this.onTouchEnd}
+             /> 
+            </div>
+    );
+  }
+});
+
+Salamigal.Viewer.Progress = React.createClass({
+    displayName: 'Salamigal.Viewer.Progress',
+    propTypes: {
+    value: React.PropTypes.number,
+    style: React.PropTypes.string,
+    state:React.PropTypes.number,
+    min:  React.PropTypes.number,
+    max: React.PropTypes.number
+  },  
+  getInitialState: function(){
+    return { value: 0, style:  'progress-bar', state: 0, min: 0, max: 100};
+  },
+  styler: function(state, style){      
+      switch(state){
+          case 0:
+            return 'progress-bar ' + style + ' progress-bar-striped';
+            break;
+          case 1:
+            return 'progress-bar ' + style + ' active progress-bar-striped';
+            break;
+      }
+      
+  },
+  render: function() {
+    return (
+        <div className="progress">
+          <div className={this.styler(this.props.state, this.props.style)} role="progressbar" aria-valuenow={this.props.value} aria-valuemin={this.props.min} aria-valuemax={this.props.max} style={{width: this.props.value + '%'}}>
+          </div>
+          <span className="sr-only">{this.props.value}%</span>
+        </div>
+    );
+  }
+});
+
+
 Salamigal.Viewer.Card = React.createClass({
   displayName: 'Salamigal.Viewer.Card ',
   propTypes:{
@@ -195,6 +296,7 @@ Salamigal.Viewer.Card = React.createClass({
     var Relay = Salamigal.Relay;
     var Ds18b20 = Salamigal.Ds18b20;
     var Hcsr04 = Salamigal.Hcsr04;
+    var L298n = Salamigal.L298n;
     var Button = Salamigal.Viewer.Button;
     if(this.props.dev.length == 1){
         return (
@@ -207,6 +309,7 @@ Salamigal.Viewer.Card = React.createClass({
                 case "DS18B20":   return <Ds18b20 deviceProperty={this.props.dev[0]} onParamChange={this.handleOnParamChange} onRefreshSelected={this.handleOnRefreshSelected}/>
                 case "Relay":   return <Relay deviceProperty={this.props.dev[0]} onParamChange={this.handleOnParamChange} onRefreshSelected={this.handleOnRefreshSelected}/>
                 case "HCSR04":   return <Hcsr04 deviceProperty={this.props.dev[0]} onParamChange={this.handleOnParamChange} onRefreshSelected={this.handleOnRefreshSelected}/>
+                case "L298N":   return <L298n deviceProperty={this.props.dev[0]} onParamChange={this.handleOnParamChange} onRefreshSelected={this.handleOnRefreshSelected}/>
               }
             })()}
             </div>
@@ -414,14 +517,81 @@ Salamigal.Hcsr04 = React.createClass({
   },
   render: function() {
     var Button = Salamigal.Viewer.Button;
+    var Progress = Salamigal.Viewer.Progress;
     return (
+      <div>
       <ul className="list-inline list-unstyled">
         <li><Button onClick={this.handleOnRefreshSelected} type={'refresh'} state={this.props.deviceProperty.stream.value ? 1 : 0}/></li>
         <li><Button onClick={() => this.handleOnParamChange('stream')} type={'stream'} state={this.props.deviceProperty.stream.value ? 1 : 0}/></li>
       </ul>
+      <div className="row h-space">
+      <div className="col-xs-12"><Progress value={this.props.deviceProperty.level.value} state={this.props.deviceProperty.stream.value} style={"progress-bar-info"} min={0} max={100}/></div>
+      </div>
+      </div>
     );
   }
 });
+
+Salamigal.L298n = React.createClass({
+  displayName: 'Salamigal.L298n',
+  propTypes: {
+        deviceProperty: React.PropTypes.object,
+        onParamChange: React.PropTypes.func,
+        onRefreshSelected: React.PropTypes.func
+  },
+  getDefaultProps: function() {
+    return {deviceProperty: {group: {label: '-', value: '-'}}};
+  },
+  getInitialState: function () {
+    return { state: {step: 1, max: 100, min: 0} };
+  },
+  handleOnParamChange: function(e){
+    if (typeof this.props.onParamChange === 'function') {
+        var change = {
+            param: e.param,
+            value: e.value, 
+            uid: this.props.deviceProperty.uid.value
+         };
+        this.props.onParamChange(change);
+    }
+  },
+  handleOnRefreshSelected: function(e){
+    if (typeof this.props.onRefreshSelected === 'function') {
+      this.props.onRefreshSelected({uid: this.props.deviceProperty.uid.value});
+    }
+  },
+  render: function() {
+    var Button = Salamigal.Viewer.Button;
+    var CommandButton = Salamigal.Viewer.CommandButton;
+    var Slider = Salamigal.Viewer.Slider;
+    var Progress = Salamigal.Viewer.Progress;
+    return (
+        <div>
+        <ul className="list-inline list-unstyled">
+            <li><Button onClick={this.handleOnRefreshSelected} type={'refresh'} state={this.props.deviceProperty.warming.value ? 1 : 0}/></li>
+            <li><CommandButton onClick={this.handleOnParamChange} style={"btn btn-warning"} param={"warm_up"} value={"warm_up"} text={"Warm Up"} /></li>
+        </ul>
+        <div className="row h-space">
+            <div className="col-xs-12"><CommandButton onClick={this.handleOnParamChange} style={"btn btn-default"} param="direction" value={"forward"} text={"Forward"} /></div>
+        </div>
+        <div className="row h-space">
+            <div className="col-xs-4"><CommandButton onClick={this.handleOnParamChange} style={"btn btn-default"} param={"direction"} value={"turn_left"} text={"Turn left"} /></div>
+            <div className="col-xs-4"><CommandButton onClick={this.handleOnParamChange} style={"btn btn-default"} param={"direction"} value={"stop"} text={"Stop"} /></div>
+            <div className="col-xs-4"><CommandButton onClick={this.handleOnParamChange} style={"btn btn-default"} param={"direction"} value={"turn_right"} text={"Turn right"} /></div>
+        </div>
+        <div className="row h-space">
+            <div className="col-xs-12"><CommandButton onClick={this.handleOnParamChange} style={"btn btn-default"} param={"direction"} value={"backward"} text={"Backward"} /></div>
+        </div>
+        <div className="row h-space">
+            <div className="col-xs-12"><Slider value={this.props.deviceProperty.speed.value} onChange={this.handleOnParamChange} param={'speed'} name={"speed"} label={"PWM Speed"}/></div>
+            <div className="col-xs-12"><Progress value={this.props.deviceProperty.speed.value} state={this.props.deviceProperty.warming.value} style={"progress-bar-danger"} min={0} max={100}/></div>
+        </div>
+        
+        </div>
+    );
+  }
+});
+
 
 ReactDOM.render(
   <Salamigal socketService={socketService}/>,

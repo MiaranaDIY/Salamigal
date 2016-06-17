@@ -40,7 +40,10 @@ class HCSR04(device.Device):
         self.instant_count = HCSR04.instant_count
         self.tank_height = 0
         self.uid = 'HCSR04-'+str(HCSR04.instant_count)
-    
+        self.record = []
+        self.level = 0
+        self.record_counter = 0
+        self.record_sample = 100
     
     #Get range
     def get_range(self):
@@ -50,12 +53,12 @@ class HCSR04(device.Device):
         GPIO.output(self.GPIO_TRIGGER, False)
         timeout_counter = int(time.time())
         start = time.time()
-        while GPIO.input(self.GPIO_ECHO)==0 and (int(time.time()) - timeout_counter) < 3:
+        while GPIO.input(self.GPIO_ECHO)==0 and (int(time.time()) - timeout_counter) < 0.1:
           start = time.time()
 
         timeout_counter = int(time.time())
         stop = time.time()
-        while GPIO.input(self.GPIO_ECHO)==1 and (int(time.time()) - timeout_counter) < 3:
+        while GPIO.input(self.GPIO_ECHO)==1 and (int(time.time()) - timeout_counter) < 0.1:
           stop = time.time()
 
         # Calculate pulse length
@@ -71,13 +74,27 @@ class HCSR04(device.Device):
 
         # That was the distance there and back so halve the value
         distance = distance / 2
-
+        
+        if(len(self.record) <= self.record_sample):
+            self.record.append(distance)
+            
         return distance
     
     #Get water level
     def get_level(self):
-        distance = self.get_range()
-        level = self.tank_height - distance
-        level_percent = level / self.tank_height * 100
-        return level_percent
+        if(len(self.record) <= self.record_sample):
+            return self.level
+        else:
+            self.record[self.record_counter] = self.get_range()
+            self.record_counter+=1
+            if(self.record_counter == self.record_sample + 1):
+                self.record_counter = 0
+            mean = 0
+            for r in self.record:
+                mean += r
+            mean = mean / self.record_sample
+            level = self.tank_height - mean
+            level_percent = level / self.tank_height * 100
+            self.level = level_percent
+            return level_percent
         

@@ -25,13 +25,21 @@ class DS18B20(device.Device):
         self.group = 'DS18B20'
         self.streaming = 0
         self.instant_count = DS18B20.instant_count
-    
+        self.cache = -1000
+        self.last_read = int(time.time())
+        self.update_interval = 60
     
     #Get temperature
     def get_temp(self):
         try:
-            dev = TS(TS.THERM_SENSOR_DS18B20, self.uid)
-            return dev.get_temperature()
-        except Exception:
-            logging.error('Device {} error or not found'.format(self.uid))
+            sekarang = int(time.time())
+            if(self.cache == -1000 or (sekarang - self.last_read) > self.update_interval):
+                dev = TS(TS.THERM_SENSOR_DS18B20, self.uid)
+                self.cache = dev.get_temperature()
+                self.last_read = sekarang
+                return self.cache
+            else:
+                return self.cache
+        except Exception as err:
+            logging.error('Device {} error or not found. Error: {}'.format(self.uid, err))
         
